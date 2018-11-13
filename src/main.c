@@ -14,19 +14,17 @@
 #define NODE1_HOSTNAME "prometheusBone1.local"
 #define NODE1_PORTNO 50660
 
+int connectToNode(const char *hostname, uint16_t portno) {
 
-int main(int argc, char **argv) {
-
-    // create sockets
-    int sock0, sock1;
-    sock0 = socket(AF_INET, SOCK_STREAM, 0);
-    sock1 = socket(AF_INET, SOCK_STREAM, 0);
-    if ((sock0 < 0) || (sock1 < 0)) {
+    // create a socket
+    int sock;
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
         fprintf(stderr, "ERROR: could not create sockets\n");
-        return 1;
+        return -1;
     }
 
-    // connect to node 0
+    // fill out sockaddr_in
     struct sockaddr_in addr;
     struct hostent *he;
     struct in_addr **addr_list;
@@ -35,42 +33,31 @@ int main(int argc, char **argv) {
     he = gethostbyname(NODE0_HOSTNAME);
     if (he == NULL) {
         fprintf(stderr, "ERROR: invalid hostname: %s\n", NODE0_HOSTNAME);
-        return 1;
+        return -1;
     } else {
         addr.sin_family = he->h_addrtype;
         addr_list = (struct in_addr **)he->h_addr_list;
         if(inet_pton(he->h_addrtype, inet_ntoa(*addr_list[0]), &addr.sin_addr) <= 0) {
             fprintf(stderr, "ERROR: inet_pton() failed\n");
-            return 1;
+            return -1;
         }
-    }
-    if(connect(sock0, (struct sockaddr *)&addr, sizeof(addr)) <= 0) {
-        fprintf(stderr, "ERROR: connect() failed\n");
-        return 1;
     }
 
-    // connect to node 1
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_port = htons(NODE1_PORTNO);
-    he = gethostbyname(NODE1_HOSTNAME);
-    if (he == NULL) {
-        fprintf(stderr, "ERROR: invalid hostname: %s\n", NODE1_HOSTNAME);
-        return 1;
-    } else {
-        addr.sin_family = he->h_addrtype;
-        addr_list = (struct in_addr **)he->h_addr_list;
-        if(inet_pton(he->h_addrtype, inet_ntoa(*addr_list[0]), &addr.sin_addr) <= 0) {
-            fprintf(stderr, "ERROR: inet_pton() failed\n");
-            return 1;
-        }
-    }
-    if(connect(sock0, (struct sockaddr *)&addr, sizeof(addr)) <= 0) {
+    // connect
+    if(connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         fprintf(stderr, "ERROR: connect() failed\n");
-        return 1;
+        return -1;
     }
+
+    return sock;
+}
+
+void sendMessage(int sock, int argc, char **argv) {
 
     // prepare a message for the server
     char msgBuf[256];
+    int i,j;
+
     j = 0; // char index
     for (i=1; i<argc; i++) {
         strcpy(msgBuf + j, argv[i]);
@@ -80,22 +67,34 @@ int main(int argc, char **argv) {
     }
     msgBuf[j] = 0x00; // null
 
-    // send the message
-    send(sock0, msgBuf, strlen(msgBuf), MSG_NOSIGNAL);
+    send(sock, msgBuf, strlen(msgBuf), MSG_NOSIGNAL);
+
+}
+
+void readResponse_lengthPrefixed(int sock) {
+
+    uint32_t responseLength;
+    unsigned char *responseBuf;
 
     // read length prefix
-    uint32_t responseLength;
-    recv(sock0, &responseLength, 4, 0);
+    recv(sock, &responseLength, 4, 0);
 
     // read response
-    unsigned char *responseBuf = (unsigned char *) malloc(responseLength);
-    recv(sock0, responseBuf, responseLength, 0);
+    responseBuf = (unsigned char *) malloc(responseLength);
+    recv(sock, responseBuf, responseLength, 0);
 
-    // write binary data to stdout
-    write(STDOUT_FILENO, responseBuf, responseLength);
-
-    // clean up
+    // free memory
     free(responseBuf);
+
+}
+
+int main(int argc, char **argv) {
+
+    int sock0 = connectToNode(NODE0_HOSTNAME, NODE0_PORTNO);
+
+    sendMessage(sock0, argc, argv);
+    readResponse_lengthPrefixed(sock0);
+
     close(sock0);
 
     return 0;
