@@ -1,11 +1,12 @@
-CC = arm-linux-gnueabihf-gcc-6
+CC = gcc
 BIN_NAME = prom-cli
 
 BUILD_DIR = build
 SOURCES += src/main.c
+FLAGS += -Wall
 
 all: $(BUILD_DIR)
-	$(CC) $(SOURCES) -o $(BUILD_DIR)/$(BIN_NAME)
+	$(CC) $(FLAGS) $(SOURCES) -o $(BUILD_DIR)/$(BIN_NAME)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
