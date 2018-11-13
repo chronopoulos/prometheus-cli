@@ -71,21 +71,19 @@ void sendMessage(int sock, int argc, char **argv) {
 
 }
 
-void readResponse_lengthPrefixed(int sock) {
+/* caller must free memory pointed to by buf */
+uint32_t recv_lengthPrefixed(int sock, unsigned char **buf_pp) {
 
     uint32_t responseLength;
-    unsigned char *responseBuf;
 
     // read length prefix
     recv(sock, &responseLength, 4, 0);
 
     // read response
-    responseBuf = (unsigned char *) malloc(responseLength);
-    recv(sock, responseBuf, responseLength, 0);
+    *buf_pp = (unsigned char *) malloc(responseLength);
+    recv(sock, *buf_pp, responseLength, 0);
 
-    // free memory
-    free(responseBuf);
-
+    return responseLength;
 }
 
 int main(int argc, char **argv) {
@@ -93,9 +91,15 @@ int main(int argc, char **argv) {
     int sock0 = connectToNode(NODE0_HOSTNAME, NODE0_PORTNO);
 
     sendMessage(sock0, argc, argv);
-    readResponse_lengthPrefixed(sock0);
+
+    uint32_t responseLength;
+    unsigned char* response = NULL;
+    responseLength = recv_lengthPrefixed(sock0, &response);
+
+    write(STDOUT_FILENO, response, responseLength);
 
     close(sock0);
+    free(response);
 
     return 0;
 
