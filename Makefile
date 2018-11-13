@@ -1,12 +1,17 @@
 CC = gcc
-BIN_NAME = prom-cli
+CFLAGS += -Wall
 
+BIN_NAME = prom-cli
 BUILD_DIR = build
+OUTPUT = -o $(BUILD_DIR)/$(BIN_NAME)
+
+INC_DIR = -Iinclude
+
 SOURCES += src/main.c
-FLAGS += -Wall
+SOURCES += src/network.c
 
 all: $(BUILD_DIR)
-	$(CC) $(FLAGS) $(SOURCES) -o $(BUILD_DIR)/$(BIN_NAME)
+	$(CC) $(CFLAGS) $(INC_DIR) $(OUTPUT) $(SOURCES)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
