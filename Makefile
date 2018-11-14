@@ -12,8 +12,10 @@ SOURCES += src/network.c
 SOURCES += src/api.c
 SOURCES += src/modclk.c
 
+LIBS += -lpigpio -lrt
+
 all: $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(INC_DIR) $(OUTPUT) $(SOURCES)
+	$(CC) $(CFLAGS) $(INC_DIR) $(OUTPUT) $(SOURCES) $(LIBS)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
