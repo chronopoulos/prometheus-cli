@@ -10,6 +10,7 @@ INC_DIR = -Iinclude
 SOURCES += src/main.c
 SOURCES += src/network.c
 SOURCES += src/api.c
+SOURCES += src/modclk.c
 
 all: $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(INC_DIR) $(OUTPUT) $(SOURCES)

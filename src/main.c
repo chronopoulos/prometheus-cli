@@ -1,4 +1,5 @@
 #include "api.h"
+#include "modclk.h"
 
 int main(int argc, char **argv) {
 
@@ -13,7 +14,7 @@ int main(int argc, char **argv) {
                 didSomething = 1;
                 break;
             case 'm':
-                printf("MODCLK command: %s\n", optarg); // todo
+                handleModclk(optarg);
                 didSomething = 1;
                 break;
             case 'c':
