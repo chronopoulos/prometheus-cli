@@ -1,5 +1,6 @@
 #include "api.h"
 #include "modclk.h"
+#include "capture.h"
 
 int main(int argc, char **argv) {
 
@@ -18,7 +19,7 @@ int main(int argc, char **argv) {
                 didSomething = 1;
                 break;
             case 'c':
-                printf("CAPTURE command: %s\n", optarg); // todo
+                handleCapture(optarg);
                 didSomething = 1;
                 break;
         }

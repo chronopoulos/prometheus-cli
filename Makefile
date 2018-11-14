@@ -11,6 +11,7 @@ SOURCES += src/main.c
 SOURCES += src/network.c
 SOURCES += src/api.c
 SOURCES += src/modclk.c
+SOURCES += src/capture.c
 
 LIBS += -lpigpio -lrt
 

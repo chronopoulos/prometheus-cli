@@ -44,7 +44,7 @@ void sendMessage(int sock, char *cmdString) {
 
 }
 
-/* NOTE: caller must free memory pointed to by buf */
+/* NOTE: caller must free memory pointed to by buf_pp */
 uint32_t recv_lengthPrefixed(int sock, unsigned char **buf_pp) {
 
     uint32_t responseLength;
@@ -55,6 +55,7 @@ uint32_t recv_lengthPrefixed(int sock, unsigned char **buf_pp) {
     // read response
     *buf_pp = (unsigned char *) malloc(responseLength);
     recv(sock, *buf_pp, responseLength, 0);
+    // todo: while(received < responseLength) {recv()}
 
     return responseLength;
 }
