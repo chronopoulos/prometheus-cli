@@ -9,6 +9,7 @@ INC_DIR = -Iinclude
 
 SOURCES += src/main.c
 SOURCES += src/network.c
+SOURCES += src/api.c
 
 all: $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(INC_DIR) $(OUTPUT) $(SOURCES)

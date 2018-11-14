@@ -38,26 +38,13 @@ int connectToNode(const char *hostname, uint16_t portno) {
     return sock;
 }
 
-void sendMessage(int sock, int argc, char **argv) {
+void sendMessage(int sock, char *cmdString) {
 
-    // prepare a message for the server
-    char msgBuf[256];
-    int i,j;
-
-    j = 0; // char index
-    for (i=1; i<argc; i++) {
-        strcpy(msgBuf + j, argv[i]);
-        j += strlen(argv[i]);
-        msgBuf[j] = 0x20; // space
-        j += 1;
-    }
-    msgBuf[j] = 0x00; // null
-
-    send(sock, msgBuf, strlen(msgBuf), MSG_NOSIGNAL);
+    send(sock, cmdString, strlen(cmdString) + 1, MSG_NOSIGNAL);
 
 }
 
-/* caller must free memory pointed to by buf */
+/* NOTE: caller must free memory pointed to by buf */
 uint32_t recv_lengthPrefixed(int sock, unsigned char **buf_pp) {
 
     uint32_t responseLength;

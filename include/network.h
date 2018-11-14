@@ -15,6 +15,6 @@
 
 int connectToNode(const char*, uint16_t );
 
-void sendMessage(int, int, char**);
+void sendMessage(int, char*);
 
 uint32_t recv_lengthPrefixed(int, unsigned char**);

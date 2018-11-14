@@ -1,19 +1,37 @@
-#include "network.h"
+#include "api.h"
 
 int main(int argc, char **argv) {
 
-    int sock0 = connectToNode(NODE0_HOSTNAME, NODE0_PORTNO);
+    int c;
+    int didSomething = 0;
 
-    sendMessage(sock0, argc, argv);
+    while((c = getopt(argc, argv, "a:m:c:")) != -1) {
 
-    uint32_t responseLength;
-    unsigned char* response = NULL;
-    responseLength = recv_lengthPrefixed(sock0, &response);
+        switch(c) {
+            case 'a':
+                handleApiCall(optarg);
+                didSomething = 1;
+                break;
+            case 'm':
+                printf("MODCLK command: %s\n", optarg); // todo
+                didSomething = 1;
+                break;
+            case 'c':
+                printf("CAPTURE command: %s\n", optarg); // todo
+                didSomething = 1;
+                break;
+        }
 
-    write(STDOUT_FILENO, response, responseLength);
+    }
 
-    close(sock0);
-    free(response);
+    if (!didSomething) {
+
+        printf("Usage: \n");
+        printf("  $ %s -a <api call>\n", argv[0]);
+        printf("  $ %s -m <modclk cmd>\n", argv[0]);
+        printf("  $ %s -c <capture cmd>\n", argv[0]);
+
+    }
 
     return 0;
 
